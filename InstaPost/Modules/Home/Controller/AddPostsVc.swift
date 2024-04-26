@@ -40,7 +40,9 @@ class AddPostsVc: UIViewController, PHPickerViewControllerDelegate {
     
     @IBOutlet weak var textFieldUserId: UITextField!
     @IBOutlet weak var collectionViewPickedImages: UICollectionView!
+    @IBOutlet var viewTableHeader: UIView!
     @IBOutlet weak var textViewDescription: UITextView!
+    @IBOutlet weak var tableViewAddPost: UITableView!
     
     let storage = Storage.storage()
     let db = Firestore.firestore()
@@ -55,6 +57,7 @@ class AddPostsVc: UIViewController, PHPickerViewControllerDelegate {
     }
     
     func setTheme(){
+        self.tableViewAddPost.tableHeaderView = self.viewTableHeader
         let layout = UICollectionViewFlowLayout()
         layout.itemSize = CGSize(width: 50, height: 50) // Set fixed size for the cells
         layout.minimumInteritemSpacing = 0 // Adjust as needed
@@ -249,5 +252,16 @@ extension  AddPostsVc{
                 self.view.endEditing(true)
             }
         }
+    }
+}
+
+//MARK: - TableView DataSource
+extension AddPostsVc: UITableViewDataSource{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        UITableViewCell()
     }
 }
