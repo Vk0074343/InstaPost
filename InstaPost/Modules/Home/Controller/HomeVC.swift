@@ -15,6 +15,7 @@ class HomeVC: UIViewController {
     let db = Firestore.firestore()
     var listener: ListenerRegistration?
     var arrayOfQuerySnapshot : [QueryDocumentSnapshot] = []
+    var lastDocument: DocumentSnapshot?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,6 +55,15 @@ extension HomeVC: UITableViewDataSource{
         }
         return cell
     }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        
+        if offsetY > contentHeight - scrollView.frame.height {
+            fetchNextPage()
+        }
+    }
 }
 
 //MARK: - Fetch the Posts for the first time and add the listner for real time update
@@ -82,6 +92,28 @@ extension HomeVC{
             }
             
             self.arrayOfQuerySnapshot = documents
+            DispatchQueue.main.async {
+                self.tableViewPostLsit.reloadData()
+            }
+        }
+    }
+    
+    func fetchNextPage() {
+        let query = db.collection("posts").limit(to: 10)
+        
+        if let lastDocument = lastDocument {
+            query.start(afterDocument: lastDocument)
+        }
+        
+        query.getDocuments { (snapshot, error) in
+            guard let snapshot = snapshot?.documents else {
+                print("Error fetching documents: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+            
+            self.arrayOfQuerySnapshot.append(contentsOf: snapshot)
+            
+            self.lastDocument = snapshot.last
             DispatchQueue.main.async {
                 self.tableViewPostLsit.reloadData()
             }
